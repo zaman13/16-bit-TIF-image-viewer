@@ -17,8 +17,11 @@ Stackoverflow Help links:
 Version Notes:
 ==============
 
-b03
-    - implemented figure enable/disable feature       
+b03:
+    - implemented rough figure enable/disable feature  
+    
+b04:
+    - disabled the control knobs/buttons when figure is disabled     
 """
 
 # import tkinter as tk
@@ -44,11 +47,22 @@ def scale_update(evnt):
     # Function to update slider labels when sliders are updated
 
     # update the text near the sliders
-    lbl_min1.config(text = str(int(sld_min1.get())))
-    lbl_max1.config(text = str(int(sld_max1.get())))
-    lbl_min2.config(text = str(int(sld_min2.get())))
-    lbl_max2.config(text = str(int(sld_max2.get())))
-
+    lbl_min1.config(text = 'Min: ' + str(int(sld_min1.get())))
+    lbl_max1.config(text = 'Max: ' + str(int(sld_max1.get())))
+    lbl_min2.config(text = 'Min: ' + str(int(sld_min2.get())))
+    lbl_max2.config(text = 'Max: ' + str(int(sld_max2.get())))
+ 
+    # ent_min1.delete(0, tk.END)
+    # ent_min1.insert(0, int(sld_min1.get()))
+    # ent_max1.delete(0, tk.END)
+    # ent_max1.insert(0, int(sld_max1.get()))
+    
+    # ent_min2.delete(0, tk.END)
+    # ent_min2.insert(0, int(sld_min2.get()))
+    # ent_max2.delete(0, tk.END)
+    # ent_max2.insert(0, int(sld_max2.get()))
+    
+    # ent_min1.get(sld_min1.get())
     # Call function to draw the figures
     draw_figure()
 
@@ -64,14 +78,16 @@ def draw_figure():
     
     # display image 1 with appropriate color scale and transparency
     img = img1
-    im_obj = ax.imshow(img,cmap = spn_cmp1.get(), alpha = float(mtr_alp1.amountusedvar.get()/100))
-    im_obj.set_clim([sld_min1.get(), sld_max1.get()])
+    if enable1.get() == True:
+        im_obj = ax.imshow(img,cmap = spn_cmp1.get(), alpha = float(mtr_alp1.amountusedvar.get()/100))
+        im_obj.set_clim([sld_min1.get(), sld_max1.get()])
 
     
     # display image 2 with appropriate color scale and transparency
     img = img2
-    im_obj = ax.imshow(img,cmap = spn_cmp2.get(), alpha = float(mtr_alp2.amountusedvar.get()/100))
-    im_obj.set_clim([sld_min2.get(), sld_max2.get()])
+    if enable2.get() == True:
+        im_obj = ax.imshow(img,cmap = spn_cmp2.get(), alpha = float(mtr_alp2.amountusedvar.get()/100))
+        im_obj.set_clim([sld_min2.get(), sld_max2.get()])
     
     # Turn axis labels off
     ax.axes.get_xaxis().set_visible(False)
@@ -241,6 +257,12 @@ def quit_program():
         pass
 # =============================================================================    
 
+def show_info():
+    freadme = open('readme.txt').read()  
+    Messagebox.show_info(freadme, 'Information', parent = ctrl_frame) 
+# =============================================================================    
+
+
 
 # =============================================================================    
 # Drag and drop functions for the two DND boxes
@@ -277,10 +299,10 @@ def drag_drp2(e):
     
     path2 = st  # feed the cleaned string data in path1 global variable
 
-    ent_dnd1.delete(0,'end')  # remove old text from the DND box
-    ent_dnd1.insert(tk.END, st)  # insert new text in the DND box
+    ent_dnd2.delete(0,'end')  # remove old text from the DND box
+    ent_dnd2.insert(tk.END, st)  # insert new text in the DND box
     
-    lbl_path1.config(text = 'File 1 = ' + path1)  # update path label in the output frame
+    lbl_path2.config(text = 'File 2 = ' + path2)  # update path label in the output frame
 
     # Load and draw image based on the new path
     load_img()
@@ -297,21 +319,54 @@ def en_dis():
     # store current opacity value, then set opacity to zero, then draw
     # and then restore opacity values without drawing (for future)    
     
+    
+    # status variable for all the control sliders/buttons
+    sts1 = 'enabled'
+    sts2 = 'enabled'
+    
     # Get value of the opacity/alpha meters and store in temp variables
     m1 = mtr_alp1.amountusedvar.get()
     m2 = mtr_alp2.amountusedvar.get()
     
     if enable1.get() == False:
-        mtr_alp1.configure(amountused = 0)   # set meter alpha to zero if checkbox is false
-  
+        sts1 = 'disabled'  # set the status of controls to disable later in the function
+        mtr_alp1.configure(amountused = 0,interactive = False, bootstyle = 'secondary', subtextstyle = 'secondary')   # set meter alpha to zero if checkbox is false
+    else:
+        mtr_alp1.configure(interactive = True, bootstyle = im1_style, subtextstyle = im1_style) 
+    
+    
     if enable2.get() == False:
-        mtr_alp2.configure(amountused = 0)   # set meter alpha to zero if checkbox is false
+        sts2 = 'disabled'     # set the status of the controles to disable later in the function
+        mtr_alp2.configure(amountused = 0,interactive = False, bootstyle = 'secondary', subtextstyle = 'secondary')   # set meter alpha to zero if checkbox is false
+    else:
+        mtr_alp2.configure(interactive = True, bootstyle = im2_style, subtextstyle = im2_style) 
+    
     
     draw_figure()   # update figure
     
     # reset alpha meters to old values
     mtr_alp1.configure(amountused = m1)
     mtr_alp2.configure(amountused = m2)
+    
+    
+    # set all the controls to disable/enable based on the checkbutton state
+    # for image 1
+    sld_min1.configure(state = sts1)
+    sld_max1.configure(state = sts1)
+    btn_auto_set1.configure(state = sts1)
+    btn_man_set1.configure(state = sts1)
+    btn_set_mtr1.configure(state = sts1)
+    btn_browse1.configure(state = sts1)
+    spn_cmp1.configure(state = sts1)
+    
+    # for image 2
+    sld_min2.configure(state = sts2)
+    sld_max2.configure(state = sts2)
+    btn_auto_set2.configure(state = sts2)    
+    btn_man_set2.configure(state = sts2) 
+    btn_set_mtr2.configure(state = sts2)
+    btn_browse2.configure(state = sts2)
+    spn_cmp2.configure(state = sts2)
 # =============================================================================    
 
 
@@ -370,7 +425,7 @@ im2_style = 'success'
 
 root = tk.Window(themename="journal")    # set root windows and theme
 _require(root)  # for drag and drop support
-root.title('16 bit Image: View and Superimpose')    # Set title of the root frame
+root.title('Eclipse: View and Superimpose 16 bit Images')    # Set title of the root frame
 root.geometry(("%dx%d+%d+%d" % (window_width, window_height, posx, posy)))
 
 # Icon not working in linux builds. Work on this later
@@ -414,9 +469,9 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.2 \nDec. 2023', bootstyle = 'secondary')
-bt_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
-
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.4 \nJan. 2024', bootstyle = 'secondary')
+btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
+btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
 lbl_path1 = tk.Label(output_frame,text = 'File 1 = ' + path1, bootstyle = im1_style)
 lbl_path2 = tk.Label(output_frame,text = 'File 2 = ' + path2, bootstyle = im2_style)
@@ -428,8 +483,8 @@ lbl_path2.pack(side =  'top', anchor = 'nw', padx = 10)
 
 
 
-bt_browse1 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im1_style, command = open_file1)
-bt_browse2 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im2_style, command = open_file2)
+btn_browse1 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im1_style, command = open_file1)
+btn_browse2 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im2_style, command = open_file2)
 
 ent_dnd1 = tk.Entry(ctrl_frame, bootstyle = im1_style)
 ent_dnd1.drop_target_register(DND_FILES)
@@ -567,10 +622,10 @@ sld_min2.set(bmn2)
 sld_max2.set(bmx2)
 
 # display slider text
-lbl_min1 = tk.Label(ctrl_frame, text = sld_min1.get(), bootstyle = im1_style)
-lbl_max1 = tk.Label(ctrl_frame, text = sld_max1.get(), bootstyle = im1_style)
-lbl_min2 = tk.Label(ctrl_frame, text = sld_min2.get(), bootstyle = im2_style)
-lbl_max2 = tk.Label(ctrl_frame, text = sld_max2.get(), bootstyle = im2_style)
+lbl_min1 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(sld_min1.get())), bootstyle = im1_style)
+lbl_max1 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max1.get())), bootstyle = im1_style)
+lbl_min2 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(sld_min2.get())), bootstyle = im2_style)
+lbl_max2 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max2.get())), bootstyle = im2_style)
 
 # labels for entry widgets
 lbl_ent_min1 = tk.Label(ctrl_frame, text = 'Img 1 min', bootstyle = im1_style)
@@ -639,7 +694,7 @@ count = count + 1
 
 lb_dnd1.grid(row = count, column = 0, stick = 'nw', padx = 10)
 ent_dnd1.grid(row = count, column = 0, rowspan = 2, columnspan = 2, stick = 'nw', padx = 10,pady = 2, ipady = 20, ipadx = 50)
-bt_browse1.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
+btn_browse1.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
 count = count + 1
 
 btn_set_mtr1.grid(row = count, column = 1, stick ='ne', padx = 10, pady = 2)
@@ -695,7 +750,7 @@ lbl_header2.grid(row = count, column = 0, columnspan = 2,  stick = 'nw', padx = 
 count = count + 1
 lb_dnd2.grid(row = count, column = 0, stick = 'nw', padx = 10)
 ent_dnd2.grid(row = count, column = 0, rowspan = 2, columnspan = 2, stick = 'nw', padx = 10,pady = 2, ipady = 20, ipadx = 50)
-bt_browse2.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
+btn_browse2.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
 count = count + 1
 
 btn_set_mtr2.grid(row = count, column = 1, stick ='ne',pady = 2, padx = 10)
@@ -758,7 +813,8 @@ count = count + 1
 # ============================================================
 lbl_logoM.pack(side = 'left', pady= 2, padx = 30)
 lbl_version.pack(side = 'left', pady= 0, padx = 0)
-bt_quit.pack(side = 'left',  pady= 0, padx = 200,ipadx = 30, ipady = 10)
+btn_info.pack(side = 'left',  pady= 0, padx = 50, ipadx = 30, ipady = 10)
+btn_quit.pack(side = 'left',  pady= 0, padx = 10,ipadx = 30, ipady = 10)
 
 # ============================================================
 
