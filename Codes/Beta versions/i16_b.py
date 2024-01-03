@@ -7,6 +7,12 @@ Created on Tue Dec 26 15:15:56 2023
 Stackoverflow Help links:
     - https://stackoverflow.com/questions/59001195/how-to-update-a-graph-created-by-matplotlib-in-tkinter
 
+
+Drag and drop implementation:
+    - dnd2 feature: https://stackoverflow.com/questions/14267900/drag-and-drop-explorer-files-to-tkinter-entry-widget
+    - implement within ttkbootstrap: https://stackoverflow.com/questions/76695493/how-do-i-add-drop-and-drag-functionality-to-different-tkinter-windows
+    - delete previous entry: https://stackoverflow.com/questions/2260235/how-to-clear-the-entry-widget-after-a-button-is-pressed-in-tkinter
+       
 """
 
 # import tkinter as tk
@@ -18,6 +24,10 @@ from matplotlib.figure import Figure
 
 from tkinter.filedialog import askopenfile 
 from ttkbootstrap.dialogs import Messagebox
+
+from tkinterdnd2 import DND_FILES, TkinterDnD
+from tkinterdnd2.TkinterDnD import _require
+
 
 import numpy as np
 import cv2
@@ -226,7 +236,52 @@ def quit_program():
 # =============================================================================    
 
 
+# =============================================================================    
+# Drag and drop functions for the two DND boxes
+# =============================================================================    
 
+def drag_drp1(e):
+    global path1   # global variable that contains the path of file 1
+    
+    st = str(e.data) # get drag n drop event data and assign it to a string        
+    
+    # replace curly brackets (if any). These braces seem to show up on when the file path has space character.
+    st = st.replace('{','')
+    st = st.replace('}','')
+    
+    path1 = st  # feed the cleaned string data in path1 global variable
+
+    ent_dnd1.delete(0,'end')  # remove old text from the DND box
+    ent_dnd1.insert(tk.END, st)  # insert new text in the DND box
+    
+    lbl_path1.config(text = 'File 1 = ' + path1)  # update path label in the output frame
+
+    # Load and draw image based on the new path
+    load_img()
+    draw_figure()
+    
+def drag_drp2(e):
+    global path2   # global variable that contains the path of file 1
+    
+    st = str(e.data) # get drag n drop event data and assign it to a string        
+    
+    # replace curly brackets (if any). These braces seem to show up on when the file path has space character.
+    st = st.replace('{','')
+    st = st.replace('}','')
+    
+    path2 = st  # feed the cleaned string data in path1 global variable
+
+    ent_dnd1.delete(0,'end')  # remove old text from the DND box
+    ent_dnd1.insert(tk.END, st)  # insert new text in the DND box
+    
+    lbl_path1.config(text = 'File 1 = ' + path1)  # update path label in the output frame
+
+    # Load and draw image based on the new path
+    load_img()
+    draw_figure()
+# =============================================================================    
+    
+    
 # ==========================================================
 # Main Program
 # ==========================================================
@@ -237,7 +292,7 @@ def quit_program():
 # Window and frame parameters
 # =============================================================================
 window_width = 1400
-window_height = 900    
+window_height = 910    
 posx = window_width/8    # x position of the window
 posy = window_height/20  # y position of the window
 
@@ -280,7 +335,7 @@ im2_style = 'success'
 # =============================================================================
 
 root = tk.Window(themename="journal")    # set root windows and theme
-
+_require(root)  # for drag and drop support
 root.title('16 bit Image: View and Superimpose')    # Set title of the root frame
 root.geometry(("%dx%d+%d+%d" % (window_width, window_height, posx, posy)))
 
@@ -323,9 +378,9 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 # Define and load figures
 # ==========================================================
 
-img_logoM = tk.PhotoImage(file = 'ec_logo_80px.png')
+img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.1 \nDec. 2023', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.2 \nDec. 2023', bootstyle = 'secondary')
 bt_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 
 
@@ -339,8 +394,19 @@ lbl_path2.pack(side =  'top', anchor = 'nw', padx = 10)
 
 
 
-bt_browse1 = tk.Button(ctrl_frame, text = 'Browse', bootstyle = im1_style, command = open_file1)
-bt_browse2 = tk.Button(ctrl_frame, text = 'Browse', bootstyle = im2_style, command = open_file2)
+bt_browse1 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im1_style, command = open_file1)
+bt_browse2 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im2_style, command = open_file2)
+
+ent_dnd1 = tk.Entry(ctrl_frame, bootstyle = im1_style)
+ent_dnd1.drop_target_register(DND_FILES)
+ent_dnd1.dnd_bind('<<Drop>>', drag_drp1)
+lb_dnd1 = tk.Label(ctrl_frame, text = 'Drag and drop here', bootstyle = im1_style)
+
+ent_dnd2 = tk.Entry(ctrl_frame, bootstyle = im2_style)
+ent_dnd2.drop_target_register(DND_FILES)
+ent_dnd2.dnd_bind('<<Drop>>', drag_drp2)
+lb_dnd2 = tk.Label(ctrl_frame, text = 'Drag and drop here', bootstyle = im2_style)
+
 
 
 fig = Figure(figsize=(4, 3), dpi=150)
@@ -532,10 +598,13 @@ count = 0
 # -----------------------------------
 lbl_header1.grid(row = count, column = 0, columnspan = 2,  stick = 'nw', padx = 10)
 count = count + 1
-bt_browse1.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
-# count = count + 1
 
-btn_set_mtr1.grid(row = count, column = 1, stick ='ne', pady = 10, padx = 10)
+lb_dnd1.grid(row = count, column = 0, stick = 'nw', padx = 10)
+ent_dnd1.grid(row = count, column = 0, rowspan = 2, columnspan = 2, stick = 'nw', padx = 10,pady = 2, ipady = 20, ipadx = 50)
+bt_browse1.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
+count = count + 1
+
+btn_set_mtr1.grid(row = count, column = 1, stick ='ne', padx = 10, pady = 2)
 count = count + 1
 mtr_alp1.grid(row = count, column = 0, columnspan = 2, rowspan = 4, stick = 'ne', padx = 10)
 
@@ -586,10 +655,12 @@ count = count + 1
 
 lbl_header2.grid(row = count, column = 0, columnspan = 2,  stick = 'nw', padx = 10)
 count = count + 1
-bt_browse2.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
-# count = count + 1
+lb_dnd2.grid(row = count, column = 0, stick = 'nw', padx = 10)
+ent_dnd2.grid(row = count, column = 0, rowspan = 2, columnspan = 2, stick = 'nw', padx = 10,pady = 2, ipady = 20, ipadx = 50)
+bt_browse2.grid(row = count, column = 1, stick = 'ne', padx = 10, pady = 2)
+count = count + 1
 
-btn_set_mtr2.grid(row = count, column = 1, stick ='ne',pady = 10, padx = 10)
+btn_set_mtr2.grid(row = count, column = 1, stick ='ne',pady = 2, padx = 10)
 count = count + 1
 mtr_alp2.grid(row = count, column = 0, columnspan = 2, rowspan = 4, stick = 'ne', padx = 10)
 
@@ -629,11 +700,11 @@ count = count + 1
 
 
 
-tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'nsew')
-count = count + 1
+# tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'nsew')
+# count = count + 1
 #---------------------------------------------------------
 
-count = count + 1
+# count = count + 1
 
 
 # bt_draw = tk.Button(ctrl_frame,text="Draw",command=draw_figure)
@@ -646,9 +717,9 @@ count = count + 1
 # ============================================================
 # Top frame packing
 # ============================================================
-lbl_logoM.pack(side = 'left', pady= 2, padx = 10)
+lbl_logoM.pack(side = 'left', pady= 2, padx = 30)
 lbl_version.pack(side = 'left', pady= 0, padx = 0)
-bt_quit.pack(side = 'left',  pady= 0, padx = 250)
+bt_quit.pack(side = 'left',  pady= 0, padx = 200,ipadx = 30, ipady = 10)
 
 # ============================================================
 
