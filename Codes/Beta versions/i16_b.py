@@ -52,15 +52,15 @@ def scale_update(evnt):
     lbl_min2.config(text = 'Min: ' + str(int(sld_min2.get())))
     lbl_max2.config(text = 'Max: ' + str(int(sld_max2.get())))
  
-    # ent_min1.delete(0, tk.END)
-    # ent_min1.insert(0, int(sld_min1.get()))
-    # ent_max1.delete(0, tk.END)
-    # ent_max1.insert(0, int(sld_max1.get()))
+    ent_min1.delete(0, tk.END)
+    ent_min1.insert(0, int(sld_min1.get()))
+    ent_max1.delete(0, tk.END)
+    ent_max1.insert(0, int(sld_max1.get()))
     
-    # ent_min2.delete(0, tk.END)
-    # ent_min2.insert(0, int(sld_min2.get()))
-    # ent_max2.delete(0, tk.END)
-    # ent_max2.insert(0, int(sld_max2.get()))
+    ent_min2.delete(0, tk.END)
+    ent_min2.insert(0, int(sld_min2.get()))
+    ent_max2.delete(0, tk.END)
+    ent_max2.insert(0, int(sld_max2.get()))
     
     # ent_min1.get(sld_min1.get())
     # Call function to draw the figures
@@ -120,13 +120,25 @@ def auto_set2():
 # Manual set functions. Similar to the auto_set functions.
 # ==========================================================
 def man_set1():
+    # ! the temp store is important. The first call of sld.set sets both
+    # min2 and max2 from the slider state. The entry box value
+    # for the second call (max in this case), gets lost. Hence,
+    # store it in a temporary variable.
+    
+    temp = ent_max1.get()
     sld_min1.set(ent_min1.get())
-    sld_max1.set(ent_max1.get())
+    sld_max1.set(temp)
     
 
 def man_set2():
+    # ! the temp store is important. The first call of sld.set sets both
+    # min2 and max2 from the slider state. The entry box value
+    # for the second call (max in this case), gets lost. Hence,
+    # store it in a temporary variable.
+    
+    temp = ent_max2.get()  
     sld_min2.set(ent_min2.get())
-    sld_max2.set(ent_max2.get())
+    sld_max2.set(temp)
 
 # ==========================================================
     
