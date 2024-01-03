@@ -5,14 +5,20 @@ Created on Tue Dec 26 15:15:56 2023
 @author: Mohammad Asif Zaman
 
 Stackoverflow Help links:
+=========================    
+    Matplotlib in tkinter frame:
     - https://stackoverflow.com/questions/59001195/how-to-update-a-graph-created-by-matplotlib-in-tkinter
 
-
-Drag and drop implementation:
+    Drag and drop implementation:
     - dnd2 feature: https://stackoverflow.com/questions/14267900/drag-and-drop-explorer-files-to-tkinter-entry-widget
     - implement within ttkbootstrap: https://stackoverflow.com/questions/76695493/how-do-i-add-drop-and-drag-functionality-to-different-tkinter-windows
     - delete previous entry: https://stackoverflow.com/questions/2260235/how-to-clear-the-entry-widget-after-a-button-is-pressed-in-tkinter
-       
+
+Version Notes:
+==============
+
+b03
+    - implemented figure enable/disable feature       
 """
 
 # import tkinter as tk
@@ -281,6 +287,34 @@ def drag_drp2(e):
     draw_figure()
 # =============================================================================    
     
+# =============================================================================    
+# Enable/disable figure with check button
+# =============================================================================    
+def en_dis():
+    # Enable/disable figure with check button
+    
+    # Figure disable procedure:set opacity to zero and draw figure. 
+    # store current opacity value, then set opacity to zero, then draw
+    # and then restore opacity values without drawing (for future)    
+    
+    # Get value of the opacity/alpha meters and store in temp variables
+    m1 = mtr_alp1.amountusedvar.get()
+    m2 = mtr_alp2.amountusedvar.get()
+    
+    if enable1.get() == False:
+        mtr_alp1.configure(amountused = 0)   # set meter alpha to zero if checkbox is false
+  
+    if enable2.get() == False:
+        mtr_alp2.configure(amountused = 0)   # set meter alpha to zero if checkbox is false
+    
+    draw_figure()   # update figure
+    
+    # reset alpha meters to old values
+    mtr_alp1.configure(amountused = m1)
+    mtr_alp2.configure(amountused = m2)
+# =============================================================================    
+
+
     
 # ==========================================================
 # Main Program
@@ -479,6 +513,10 @@ spn_cmp1  = tk.Spinbox(ctrl_frame,
                        )
 spn_cmp1.set('Blues')
 
+enable1 = tk.BooleanVar(value = True)
+chk_enable1 = tk.Checkbutton(ctrl_frame, bootstyle = im1_style + '-round-toggle', text = 'Enable', variable = enable1, command = en_dis)
+enable2 = tk.BooleanVar(value = False)
+chk_enable2 = tk.Checkbutton(ctrl_frame, bootstyle = im2_style + '-round-toggle', text = 'Enable', variable = enable2, command = en_dis)
 
 
 lbl_cmp2 = tk.Label(ctrl_frame,text = 'Colormap 2', bootstyle = im2_style)
@@ -564,7 +602,7 @@ btn_set_mtr1 = tk.Button(ctrl_frame, bootstyle = im1_style, text = 'Set Opacity'
 btn_set_mtr2 = tk.Button(ctrl_frame, bootstyle = im2_style, text = 'Set Opacity', command = draw_figure)
 
 
-
+en_dis()   # call the function to make sure the figures correspond to checkbutton states
 
 
 
@@ -615,7 +653,7 @@ lbl_cmp1.grid(row = count, column = 0, stick = 'nw', padx = 10)
 
 count = count + 1
 spn_cmp1.grid(row = count, column = 0,  stick = 'nw', padx = 10)
-
+chk_enable1.grid(row = count, column = 1, stick = 'w', padx = 10)
 count = count + 1
 # count = count + 1
 
@@ -670,6 +708,7 @@ lbl_cmp2.grid(row = count, column = 0, stick = 'nw', padx = 10)
 
 count = count + 1
 spn_cmp2.grid(row = count, column = 0,  stick = 'nw', padx = 10)
+chk_enable2.grid(row = count, column = 1, stick = 'w', padx = 10)
 
 count = count + 1
 
