@@ -262,8 +262,8 @@ def quit_program():
     
     if mb_quit == 'Yes':
       
-        print('\nThank you for using the program. Longer strands!\n')
-        root.quit()     # Added this in vb0.2. Sometimes, the terminal gets stuck when quitting the program. This might help.
+        print('\nThank you for using the program. Focus on the big picture!\n')
+        root.quit()     # Sometimes, the terminal gets stuck when quitting the program. This might help.
         root.destroy()
     else:
         pass
@@ -599,6 +599,24 @@ spn_cmp2.set('Greens')
 # Load image
 load_img()
 
+
+# labels for entry widgets
+lbl_ent_min1 = tk.Label(ctrl_frame, text = 'Img 1 min', bootstyle = im1_style)
+lbl_ent_max1 = tk.Label(ctrl_frame, text = 'Img 1 max', bootstyle = im1_style)
+lbl_ent_min2 = tk.Label(ctrl_frame, text = 'Img 2 min', bootstyle = im2_style)
+lbl_ent_max2 = tk.Label(ctrl_frame, text = 'Img 2 max', bootstyle = im2_style)
+
+# entry widgets for min/max values of the image. Used for manual setting.
+ent_min1 = tk.Entry(ctrl_frame, bootstyle = im1_style )
+ent_max1 = tk.Entry(ctrl_frame, bootstyle = im1_style )
+ent_min2 = tk.Entry(ctrl_frame, bootstyle = im2_style )
+ent_max2 = tk.Entry(ctrl_frame, bootstyle = im2_style )
+
+ent_min1.insert(0, bmn1)
+ent_max1.insert(0, bmx1)
+ent_min2.insert(0, bmn2)
+ent_max2.insert(0, bmx2)
+
 sld_min1 = tk.Scale(ctrl_frame, 
                     bootstyle = im1_style, 
                     from_ = np.round(mn1L,2),
@@ -639,22 +657,7 @@ lbl_max1 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max1.get())), boots
 lbl_min2 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(sld_min2.get())), bootstyle = im2_style)
 lbl_max2 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max2.get())), bootstyle = im2_style)
 
-# labels for entry widgets
-lbl_ent_min1 = tk.Label(ctrl_frame, text = 'Img 1 min', bootstyle = im1_style)
-lbl_ent_max1 = tk.Label(ctrl_frame, text = 'Img 1 max', bootstyle = im1_style)
-lbl_ent_min2 = tk.Label(ctrl_frame, text = 'Img 2 min', bootstyle = im2_style)
-lbl_ent_max2 = tk.Label(ctrl_frame, text = 'Img 2 max', bootstyle = im2_style)
 
-# entry widgets for min/max values of the image. Used for manual setting.
-ent_min1 = tk.Entry(ctrl_frame, bootstyle = im1_style )
-ent_max1 = tk.Entry(ctrl_frame, bootstyle = im1_style )
-ent_min2 = tk.Entry(ctrl_frame, bootstyle = im2_style )
-ent_max2 = tk.Entry(ctrl_frame, bootstyle = im2_style )
-
-ent_min1.insert(0, sld_min1.get())
-ent_max1.insert(0, sld_max1.get())
-ent_min2.insert(0, sld_min2.get())
-ent_max2.insert(0, sld_max2.get())
 
 # Button for setting slider to auto range
 btn_auto_set1 = tk.Button(ctrl_frame, text = 'Auto Set', bootstyle = im1_style, command = auto_set1)
