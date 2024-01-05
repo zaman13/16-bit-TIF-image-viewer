@@ -139,8 +139,30 @@ def man_set2():
     temp = ent_max2.get()  
     sld_min2.set(ent_min2.get())
     sld_max2.set(temp)
+# ==========================================================
+
 
 # ==========================================================
+# Keyboard/mouse binding functions of manual set. They take 
+# event argument, where as the button press functions for the
+# same action don't. For this reason, these extra set of
+# functions were necessary. 
+# ==========================================================
+def key_set1(ev):
+    man_set1()
+
+def key_set2(ev):
+    man_set2()
+# ==========================================================
+
+
+# ==========================================================
+# This function will bind mouse key to the opacity meters later
+# ==========================================================
+def mtr_mouse(ev):
+    draw_figure()
+# ==========================================================
+
     
 def load_img():
     global img1
@@ -552,7 +574,9 @@ mtr_alp1 = tk.Meter(ctrl_frame,
                     textright = '%',
                     stepsize=1,
                     textfont='-size 10 -weight bold',
-                    subtextfont='-size 7 -weight normal',)
+                    subtextfont='-size 7 -weight normal',
+                    )
+
 
 
 mtr_alp2 = tk.Meter(ctrl_frame, 
@@ -570,6 +594,10 @@ mtr_alp2 = tk.Meter(ctrl_frame,
                     textfont='-size 10 -weight bold',
                     subtextfont='-size 7 -weight normal',
                     )
+
+# mtr_alp1.bind("<Button>", mtr_mouse)
+# mtr_alp2.bind("<Button-1>", mtr_mouse)
+
 
 lbl_cmp1 = tk.Label(ctrl_frame,text = 'Colormap 1', bootstyle = im1_style)
 spn_cmp1  = tk.Spinbox(ctrl_frame, 
@@ -616,6 +644,19 @@ ent_min1.insert(0, bmn1)
 ent_max1.insert(0, bmx1)
 ent_min2.insert(0, bmn2)
 ent_max2.insert(0, bmx2)
+
+ent_min1.bind("<Return>", key_set1)
+ent_min1.bind("<Tab>", key_set1)
+ent_max1.bind("<Return>", key_set1)
+ent_max1.bind("<Tab>", key_set1)
+
+# ent_min1.bind("<Button>", mtr_mouse)
+
+ent_min2.bind("<Return>", key_set2)
+ent_min2.bind("<Tab>", key_set2)
+ent_max2.bind("<Return>", key_set2)
+ent_max2.bind("<Tab>", key_set2)
+
 
 sld_min1 = tk.Scale(ctrl_frame, 
                     bootstyle = im1_style, 
