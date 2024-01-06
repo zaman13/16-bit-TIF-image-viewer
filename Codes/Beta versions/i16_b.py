@@ -410,6 +410,11 @@ def en_dis():
 # =============================================================================    
 
 
+def resize(event):
+    print('inside resize')
+    w,h = event.width-100, event.height-100
+    canvas.config(width=w, height=h)
+
     
 # ==========================================================
 # Main Program
@@ -540,7 +545,7 @@ lb_dnd2 = tk.Label(ctrl_frame, text = 'Drag and drop here', bootstyle = im2_styl
 
 
 
-fig = Figure(figsize=(4, 3), dpi=150)
+fig = Figure(figsize=(4, 3), dpi=160)
 # fig = Figure()
 ax = fig.add_subplot(111)
 
@@ -552,6 +557,10 @@ fig.tight_layout()
 # ==========================================================
 canvas = FigureCanvasTkAgg(fig, master=output_frame)  # A tk.DrawingArea.
 canvas.get_tk_widget().pack(anchor = 'nw')
+
+# canvas.get_tk_widget().pack(side = 'top', fill = 'both', expand = True)
+# canvas.get_tk_widget().pack(anchor= 'e', fill = 'both', expand = True)
+
 toolbar = NavigationToolbar2Tk(canvas, bottom_frame)
 # ==========================================================
 
