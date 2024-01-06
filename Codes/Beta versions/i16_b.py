@@ -72,6 +72,11 @@ def scale_update(evnt):
 def draw_figure():
     # Update and draw/display figure    
     # clear figure
+        
+    fig.clear()
+   
+    
+    output_frame.update()
     fig.clear()
     
     ax = fig.add_subplot(111)
@@ -160,6 +165,7 @@ def key_set2(ev):
 # This function will bind mouse key to the opacity meters later
 # ==========================================================
 def mtr_mouse(ev):
+    print('in mtr_mouse function')
     draw_figure()
 # ==========================================================
 
@@ -517,6 +523,8 @@ lbl_path2.pack(side =  'top', anchor = 'nw', padx = 10)
 
 
 
+
+
 btn_browse1 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im1_style, command = open_file1)
 btn_browse2 = tk.Button(ctrl_frame, text = '   Browse    ', bootstyle = im2_style, command = open_file2)
 
@@ -533,6 +541,7 @@ lb_dnd2 = tk.Label(ctrl_frame, text = 'Drag and drop here', bootstyle = im2_styl
 
 
 fig = Figure(figsize=(4, 3), dpi=150)
+# fig = Figure()
 ax = fig.add_subplot(111)
 
 fig.tight_layout()
@@ -713,6 +722,10 @@ btn_set_mtr1 = tk.Button(ctrl_frame, bootstyle = im1_style, text = 'Set Opacity'
 btn_set_mtr2 = tk.Button(ctrl_frame, bootstyle = im2_style, text = 'Set Opacity', command = draw_figure)
 
 
+
+
+
+
 en_dis()   # call the function to make sure the figures correspond to checkbutton states
 
 
@@ -874,6 +887,13 @@ btn_quit.pack(side = 'left',  pady= 0, padx = 10,ipadx = 30, ipady = 10)
 
 # ============================================================
 
+
+
+# ============================================================
+# Bottom frame packing
+# ============================================================
+
+# ============================================================
 
 
 root.mainloop()
