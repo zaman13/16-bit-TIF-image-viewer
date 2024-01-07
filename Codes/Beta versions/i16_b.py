@@ -410,10 +410,6 @@ def en_dis():
 # =============================================================================    
 
 
-def resize(event):
-    print('inside resize')
-    w,h = event.width-100, event.height-100
-    canvas.config(width=w, height=h)
 
     
 # ==========================================================
