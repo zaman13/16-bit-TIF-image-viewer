@@ -22,11 +22,19 @@ b03:
     
 b04:
     - disabled the control knobs/buttons when figure is disabled     
+
+b08:
+    - used grid instead of pack in the output_frame. This helps with figure resizing a little.
 """
 
 # import tkinter as tk
 # from tkinter import *
 import ttkbootstrap as tk
+
+# https://stackoverflow.com/questions/76717279/ttkbootstrap-meter-widget-doc-example-not-working
+from PIL import Image
+Image.CUBIC = Image.BICUBIC  # this is for the meter widget in ttkbootstrap. Check the stackoverflow link above
+
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -510,16 +518,14 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.4 \nJan. 2024', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.8 \nJan. 2024', bootstyle = 'secondary')
 btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
 lbl_path1 = tk.Label(output_frame,text = 'File 1 = ' + path1, bootstyle = im1_style)
 lbl_path2 = tk.Label(output_frame,text = 'File 2 = ' + path2, bootstyle = im2_style)
 
-# Pack output frame texts immediately so that they appear on the top (above the figure)
-lbl_path1.pack(side = 'top', anchor = 'nw', padx = 10)
-lbl_path2.pack(side =  'top', anchor = 'nw', padx = 10)
+
 
 
 
@@ -541,7 +547,7 @@ lb_dnd2 = tk.Label(ctrl_frame, text = 'Drag and drop here', bootstyle = im2_styl
 
 
 
-fig = Figure(figsize=(4, 3), dpi=160)
+fig = Figure(figsize=(4, 3), dpi=150)
 # fig = Figure()
 ax = fig.add_subplot(111)
 
@@ -552,10 +558,6 @@ fig.tight_layout()
 # Display figure and toolbar
 # ==========================================================
 canvas = FigureCanvasTkAgg(fig, master=output_frame)  # A tk.DrawingArea.
-canvas.get_tk_widget().pack(anchor = 'nw')
-
-# canvas.get_tk_widget().pack(side = 'top', fill = 'both', expand = True)
-# canvas.get_tk_widget().pack(anchor= 'e', fill = 'both', expand = True)
 
 toolbar = NavigationToolbar2Tk(canvas, bottom_frame)
 # ==========================================================
@@ -746,8 +748,8 @@ ctrl_frame.columnconfigure(0, weight = 1)
 ctrl_frame.columnconfigure(1, weight = 1)
 ctrl_frame.columnconfigure(2, weight = 1)
 
-ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24), weight = 1)
-ctrl_frame.rowconfigure(25, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
+ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24,25,26), weight = 1)
+ctrl_frame.rowconfigure(27, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
 
 
 # the count variable makes it easy to reposition widgets in the frame without having to change grid indices of all following entries
@@ -895,8 +897,36 @@ btn_quit.pack(side = 'left',  pady= 0, padx = 10,ipadx = 30, ipady = 10)
 
 
 # ============================================================
-# Bottom frame packing
+# Output frame packing
 # ============================================================
+output_frame.rowconfigure((0,1,3), weight=1)
+output_frame.rowconfigure(2, weight=60)
+
+output_frame.columnconfigure(0, weight=1)
+output_frame.columnconfigure(1, weight=2)
+
+
+
+lbl_path1.grid(row = 0, column = 0,  sticky = 'nw')
+lbl_path2.grid(row = 1, column = 0,  sticky = 'nw')
+canvas.get_tk_widget().grid(row = 2, column = 0, sticky = 'news')
+
+
+lbl_space = tk.Label(output_frame, text = '!')
+lbl_space.grid(row = 2, column = 1)
+
+# # Pack output frame texts immediately so that they appear on the top (above the figure)
+# lbl_path1.pack(side = 'top', anchor = 'nw', padx = 10)
+# lbl_path2.pack(side =  'top', anchor = 'nw', padx = 10)
+
+# canvas.get_tk_widget().pack(anchor = 'nw')
+
+
+
+
+
+# canvas.get_tk_widget().pack(side = 'top', fill = 'both', expand = True)
+# canvas.get_tk_widget().pack(anchor= 'e', fill = 'both', expand = True)
 
 # ============================================================
 
