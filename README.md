@@ -1,5 +1,4 @@
-# 16-bit-TIF-image-viewer
-A python code to open 16 bit images with sliders to adjust color scale/range.
+# Eclipse: 16 bit Image viewer and superimposer
 
 <p float="left">
 <a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/Language-Python-blue" alt="alt text"> </a>
@@ -8,4 +7,20 @@ A python code to open 16 bit images with sliders to adjust color scale/range.
 </p>
 
 <p>
-Finite difference solution of 2D Poisson equatio
+  <img align = "right" src="https://github.com/zaman13/16-bit-TIF-image-viewer/blob/main/Codes/Beta%20versions/ec_logo_90px.png"  width = "240" />
+
+
+A python code to open 16 bit images with sliders to adjust color scale/range, colormap, and transparency. Two images can be opened simulataneously and superimposed on top of each other. Images taken with scientific monochromatic camera with different filters can be combined using this code.   
+
+</p>
+
+## Library requirements
+- OpenCV
+- Matplotlib
+- ttkbootstrap (tkinter wrapper)
+
+## Features
+- Graphical user interface
+- Simultaneous and independent control of two images
+- Multiple colormap options
+   
