@@ -3,7 +3,7 @@
 <p float="left">
 <a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/Language-Python-blue" alt="alt text"> </a>
 <a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/blob/main/LICENSE"> <img src="https://img.shields.io/github/license/zaman13/Poisson-solver-2D" alt="alt text"></a>
-<a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/version-0.4-red" alt="alt text"> </a>
+<a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/version-0.8-red" alt="alt text"> </a>
 </p>
 
 <p>
@@ -14,6 +14,9 @@ A python code to open 16 bit images with sliders to adjust color scale/range, co
 
 </p>
 
+
+
+
 ## Library requirements
 - OpenCV
 - Matplotlib
@@ -23,4 +26,10 @@ A python code to open 16 bit images with sliders to adjust color scale/range, co
 - Graphical user interface
 - Simultaneous and independent control of two images
 - Multiple colormap options
+
+## Sample output
+<p>
+   <img align = "left" src="https://github.com/zaman13/16-bit-TIF-image-viewer/blob/main/Sample%20output/gui_1.png"  width = "800" />
+
+</p>
    
