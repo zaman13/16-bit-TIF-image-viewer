@@ -55,20 +55,20 @@ def scale_update(evnt):
     # Function to update slider labels when sliders are updated
 
     # update the text near the sliders
-    lbl_min1.config(text = 'Min: ' + str(int(float(sld_min1.get()))))
-    lbl_max1.config(text = 'Max: ' + str(int(float(sld_max1.get()))))
-    lbl_min2.config(text = 'Min: ' + str(int(float(sld_min2.get()))))
-    lbl_max2.config(text = 'Max: ' + str(int(float(sld_max2.get()))))
+    lbl_min1.config(text = 'Min: ' + str(int(sld_min1.get())))
+    lbl_max1.config(text = 'Max: ' + str(int(sld_max1.get())))
+    lbl_min2.config(text = 'Min: ' + str(int(sld_min2.get())))
+    lbl_max2.config(text = 'Max: ' + str(int(sld_max2.get())))
  
     ent_min1.delete(0, tk.END)
-    ent_min1.insert(0, int(float(sld_min1.get())))
+    ent_min1.insert(0, int(sld_min1.get()))
     ent_max1.delete(0, tk.END)
-    ent_max1.insert(0, int(float(sld_max1.get())))
+    ent_max1.insert(0, int(sld_max1.get()))
     
     ent_min2.delete(0, tk.END)
-    ent_min2.insert(0, int(float(sld_min2.get())))
+    ent_min2.insert(0, int(sld_min2.get()))
     ent_max2.delete(0, tk.END)
-    ent_max2.insert(0, int(float(sld_max2.get())))
+    ent_max2.insert(0, int(sld_max2.get()))
     
     # ent_min1.get(sld_min1.get())
     # Call function to draw the figures
@@ -444,7 +444,7 @@ bottom_frame_height = 50
 # Control parameters. Currently GUI doesn't have access to it.
 # ==========================================================
 blur_order = 5
-mn_fct = 0
+mn_fct = 0.25
 mx_fct = 3
 # =============================================================================
 
@@ -709,10 +709,10 @@ sld_min2.set(bmn2)
 sld_max2.set(bmx2)
 
 # display slider text
-lbl_min1 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(float(sld_min1.get()))), bootstyle = im1_style)
-lbl_max1 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(float(sld_max1.get()))), bootstyle = im1_style)
-lbl_min2 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(float(sld_min2.get()))), bootstyle = im2_style)
-lbl_max2 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(float(sld_max2.get()))), bootstyle = im2_style)
+lbl_min1 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(sld_min1.get())), bootstyle = im1_style)
+lbl_max1 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max1.get())), bootstyle = im1_style)
+lbl_min2 = tk.Label(ctrl_frame, text = 'Min: ' + str(int(sld_min2.get())), bootstyle = im2_style)
+lbl_max2 = tk.Label(ctrl_frame, text = 'Max: ' + str(int(sld_max2.get())), bootstyle = im2_style)
 
 
 
