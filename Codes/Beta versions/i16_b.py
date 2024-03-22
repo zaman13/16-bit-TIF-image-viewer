@@ -89,7 +89,7 @@ def draw_figure():
     global ax
     global xlim_org
     global ylim_org
-    print('In draw figure')    
+    # print('In draw figure')    
     
     
     # ==========================================================
@@ -165,8 +165,8 @@ def reset_view():
     global ylim_org
     global ax
     try:
-        print(xlim_org)
-        print(ylim_org)
+        # print(xlim_org)
+        # print(ylim_org)
         ax.set_xlim(xlim_org)
         ax.set_ylim(ylim_org)
         draw_figure()
@@ -203,9 +203,35 @@ def man_set1():
     # for the second call (max in this case), gets lost. Hence,
     # store it in a temporary variable.
     
+    # Reset sliders to full range first. If we try to set slider value that is outside its range, it fails. Hence, reset it to full range before attempting to set it to a new range.
+    try:
+        sld_min1.configure(from_=0, to = 2**16-1)
+    except:
+        pass
+            
+    try:
+        sld_max1.configure(from_=0, to = 2**16-1)
+    except:
+        pass
+    
+    
+    # Set slider values based on the entry box value
     temp = ent_max1.get()
     sld_min1.set(ent_min1.get())
     sld_max1.set(temp)
+    
+    # Change slider limits to fit/center the new set value
+    try:
+        sld_min1.configure(from_=sld_min1.get()*sld_fct, to = sld_min1.get()*(1+sld_fct))
+    except:
+        pass
+            
+    try:
+        sld_max1.configure(from_=sld_max1.get()*sld_fct, to = sld_max1.get()*(1+sld_fct))
+    except:
+        pass
+    
+
     
 
 def man_set2():
@@ -214,9 +240,35 @@ def man_set2():
     # for the second call (max in this case), gets lost. Hence,
     # store it in a temporary variable.
     
+    
+    global sld_fct
+    
+    # Reset sliders to full range first. If we try to set slider value that is outside its range, it fails. Hence, reset it to full range before attempting to set it to a new range.
+    try:
+        sld_min2.configure(from_=0, to = 2**16-1)
+    except:
+        pass
+            
+    try:
+        sld_max2.configure(from_=0, to = 2**16-1)
+    except:
+        pass
+    
+    # Set slider values based on the entry box value
     temp = ent_max2.get()  
     sld_min2.set(ent_min2.get())
     sld_max2.set(temp)
+    
+    # Change slider limits to fit/center the new set value
+    try:
+        sld_min2.configure(from_=sld_min2.get()*sld_fct, to = sld_min2.get()*(1+sld_fct))
+    except:
+        pass
+            
+    try:
+        sld_max2.configure(from_=sld_max2.get()*sld_fct, to = sld_max2.get()*(1+sld_fct))
+    except:
+        pass
 # ==========================================================
 
 
@@ -252,15 +304,7 @@ def load_img():
     global bmn2
     global bmx2
     
-    global mn1L
-    global mn1H
-    global mx1L
-    global mx1H
-    
-    global mn2L
-    global mn2H
-    global mx2L
-    global mx2H
+
     
     global org_xlim
     global org_ylim
@@ -286,36 +330,7 @@ def load_img():
     bmx2 = np.max(imb)     # min of the blurred image
     bmn2 = np.min(imb)     # max of the blurred image
     
-    mn1L = bmn1*mn_fct
-    mn1H = bmn1*mx_fct
-    mx1L = bmx1*mn_fct
-    mx1H = bmx1*mx_fct
-    
-    mn2L = bmn2*mn_fct
-    mn2H = bmn2*mx_fct
-    mx2L = bmx2*mn_fct
-    mx2H = bmx2*mx_fct
-    
-    # print(sld_min1.winfo_exists())            
-    try:
-        sld_min1.configure(from_=mn1L, to = mn1H)
-    except:
-        pass
-            
-    try:
-        sld_max1.configure(from_=mx1L, to = mx1H)
-    except:
-        pass
-    
-    try:
-        sld_min2.configure(from_=mn2L, to = mn2H)
-    except:
-        pass
-            
-    try:
-        sld_max2.configure(from_=mx2L, to = mx2H)
-    except:
-        pass
+
     
 # ==========================================================
 
@@ -492,7 +507,7 @@ def en_dis():
 # Main Program
 # ==========================================================
     
-
+print('Starting Eclipse, v0.11 (March 2024) \n\n')
     
 # =============================================================================
 # Window and frame parameters
@@ -512,20 +527,18 @@ bottom_frame_height = 50
 # Control parameters. Currently GUI doesn't have access to it.
 # ==========================================================
 blur_order = 5
-mn_fct = 0
-mx_fct = 3
+sld_fct = 0.5
+
 # =============================================================================
 
 # =============================================================================
 # Default values of parameters
 # =============================================================================
-mn1L, mn1H = 100, 600
-mx1L, mx1H = 800, 10000
+
 bmn1, bmx1 = 400, 4000
 
 
-mn2L, mn2H = mn1L, mn1H
-mx2L, mx2H = mx1L, mx1H
+
 bmn2, bmx2 = bmn1, bmx1
 
 path1 = 's1.tif'
@@ -586,7 +599,7 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.8 \nJan. 2024', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.11 \nMarch. 2024', bootstyle = 'secondary')
 btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
@@ -686,7 +699,7 @@ mtr_alp2 = tk.Meter(ctrl_frame,
 lbl_cmp1 = tk.Label(ctrl_frame,text = 'Colormap 1', bootstyle = im1_style)
 spn_cmp1  = tk.Spinbox(ctrl_frame, 
                        bootstyle= im1_style,
-                       values = ['viridis', 'jet', 'Greys', 'cividis', 'Blues'], state= 'readonly',
+                       values = ['viridis', 'jet', 'Greys', 'cividis', 'Blues', 'Blues_r'], state= 'readonly',
                        wrap = True,
                        command = draw_figure,
                        )
@@ -701,11 +714,11 @@ chk_enable2 = tk.Checkbutton(ctrl_frame, bootstyle = im2_style + '-round-toggle'
 lbl_cmp2 = tk.Label(ctrl_frame,text = 'Colormap 2', bootstyle = im2_style)
 spn_cmp2  = tk.Spinbox(ctrl_frame, 
                        bootstyle= im2_style,
-                       values = ['hot', 'Reds', 'PuRd','Greens'], state= 'readonly',
+                       values = ['hot', 'Reds', 'PuRd','Greens', 'plasma', 'magma', 'jet'], state= 'readonly',
                        wrap = True,
                        command = draw_figure,
                        )
-spn_cmp2.set('Greens')
+spn_cmp2.set('magma')
 
 
 # Load image
@@ -744,29 +757,29 @@ ent_max2.bind("<Tab>", key_set2)
 
 sld_min1 = tk.Scale(ctrl_frame, 
                     bootstyle = im1_style, 
-                    from_ = np.round(mn1L,2),
-                    to = np.round(mn1H,2),
+                    from_ = 0, #np.round(mn1L,2),
+                    to = 2**16 - 1, #np.round(mn1H,2),
                     command = scale_update,
                     )
 
 sld_max1 = tk.Scale(ctrl_frame, 
-                    from_ = np.round(mx1L,2),
-                    to = np.round(mx1H,2),
+                    from_ = 0, #np.round(mx1L,2),
+                    to = 2**16 - 1, #np.round(mx1H,2),
                     bootstyle = im1_style,
                     command = scale_update,
                     )
 
 sld_min2 = tk.Scale(ctrl_frame, 
                     bootstyle = im2_style,
-                    from_ = np.round(mn2L,2),
-                    to = np.round(mn2H,2),
+                    from_ = 0, #np.round(mn2L,2),
+                    to = 2**16 - 1, #np.round(mn2H,2),
                     command = scale_update,
                     )
 
 sld_max2 = tk.Scale(ctrl_frame, 
                     bootstyle = im2_style,
-                    from_ = np.round(mx2L,2),
-                    to = np.round(mx2H,2),
+                    from_ = 0, #np.round(mx2L,2),
+                    to = 2**16 - 1, #np.round(mx2H,2),
                     command = scale_update,
                     )
 
@@ -798,10 +811,14 @@ btn_set_mtr2 = tk.Button(ctrl_frame, bootstyle = im2_style, text = 'Set Opacity'
 
 
 
-btn_reset_v = tk.Button(ctrl_frame, bootstyle = im1_style, text = 'Reset View', command = reset_view)
-
+# btn_reset_v = tk.Button(ctrl_frame, bootstyle = im1_style, text = 'Reset View', command = reset_view)
+btn_reset_v = tk.Button(output_frame, bootstyle = im1_style, text = 'Reset View', command = reset_view)
 
 en_dis()   # call the function to make sure the figures correspond to checkbutton states
+
+
+
+
 
 
 
@@ -935,15 +952,17 @@ btn_auto_set2.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
 
 count = count + 1
 
-tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'nsew')
-count = count + 1
 
-btn_reset_v.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
-count = count + 1
 
 # tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'nsew')
 # count = count + 1
 #---------------------------------------------------------
+tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'new')
+# count = count + 1
+
+# btn_reset_v.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
+# count = count + 1
+
 
 # count = count + 1
 
@@ -973,6 +992,7 @@ btn_quit.pack(side = 'left',  pady= 0, padx = 10,ipadx = 30, ipady = 10)
 output_frame.rowconfigure((0,1,3), weight=1)
 output_frame.rowconfigure(2, weight=60)
 
+
 output_frame.columnconfigure(0, weight=1)
 output_frame.columnconfigure(1, weight=2)
 
@@ -980,11 +1000,15 @@ output_frame.columnconfigure(1, weight=2)
 
 lbl_path1.grid(row = 0, column = 0,  sticky = 'nw')
 lbl_path2.grid(row = 1, column = 0,  sticky = 'nw')
+# lbl_path2.grid(row = 0, column = 1,  sticky = 'nw')
+btn_reset_v.grid(row = 1, column = 0, stick = 'ne', ipady = 6, padx = 70)
+
 canvas.get_tk_widget().grid(row = 2, column = 0, sticky = 'news')
+# btn_reset_v.grid(row = 3, column = 0, stick = 'nw', ipady = 10, padx = 10)
 
 
-lbl_space = tk.Label(output_frame, text = '!')
-lbl_space.grid(row = 2, column = 1)
+# lbl_space = tk.Label(output_frame, text = '!')
+# lbl_space.grid(row = 2, column = 1)
 
 # # Pack output frame texts immediately so that they appear on the top (above the figure)
 # lbl_path1.pack(side = 'top', anchor = 'nw', padx = 10)
