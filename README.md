@@ -26,6 +26,7 @@ A python code to open 16 bit images with sliders to adjust color scale/range, co
 - Graphical user interface
 - Simultaneous and independent control of two images
 - Multiple colormap options
+- Adjustable transparency 
 
 ## Sample output
 <p>
