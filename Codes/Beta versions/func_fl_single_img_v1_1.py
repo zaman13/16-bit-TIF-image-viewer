@@ -29,6 +29,16 @@ Oct. 11, 2023
 
 March 19, 2024
     - Convert code to analyze a single image. Loop over images in the wrap (if needed)
+
+April 2024
+    - Added statistics function
+    
+    
+May 2, 2024
+    - Added object size (area) as an output
+    - Added object location coordinate (x,y) as an output
+    - Print data in a table format with object label, mean intensity, size and coordinate. Also tabulated image mean and background mean.
+    
     
 """
 
@@ -313,6 +323,12 @@ def analyze_images(fpath, path_out, block_size, th_factor):
        
     mean_store = []   # list that will contain mean of each detected object (from submask)
     size_store = []   # list to store the size of each detected object (from submask)
+    x_store = []      # store x position of each detected object (from submask)
+    y_store = []      # store y position of each detected object (from submask)
+    
+    # note that the x and y poistion is saved from the bounding box coordinate. Hence, there will be an offset from the top left edge of the object. These values
+    # should not be taken as the center of each object! They are top left position of the object with some added offset (should be equal to im_box_border variable defined in the
+    # bbox1() function)
     # =============================================================================
     
     
@@ -430,6 +446,9 @@ def analyze_images(fpath, path_out, block_size, th_factor):
         yt = [iB[0], iB[1], iB[1], iB[0], iB[0]]
         xt = [iB[2], iB[2], iB[3], iB[3], iB[2]]
         
+        x_store.append(iB[2])    # store the top left x position of the object (with offset)
+        y_store.append(iB[0])    # store the top left y position of the object (with offset)
+        
         py.plot(xt,yt,'r', linewidth = 0.5)    # plot boxes
         py.text(iB[2]-2, iB[0]-2, str(m), fontsize = 6, color = 'w')  # plot label text
         
@@ -478,7 +497,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
     py.savefig(p+ 'crop.png', dpi = 300)  
     
     py.figure(36)
-    py.savefig(p+ '.png', dpi = 300)  
+    py.savefig(p+ 'box.png', dpi = 300)  
     
     
     # =============================================================================        
@@ -543,7 +562,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
    
     print_log('===================================================================')
     
-    return mean_store, size_store, b_mean
+    return mean_store, size_store, b_mean, x_store, y_store
 
 
 def single_img_analysis(fpath, path_out, block_size, th_factor):
@@ -551,12 +570,13 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # returns the same thing as analyze_images() function (with some numpy conversion). Mostly, prints results This can perhaps be included in the analyze_images() function itself.
     
     # temp =  np.array(analyze_images(path_full,path_out + '/' + folder[m], block_size, th_factor_set[m]))*scale_factor[m]           # analyze the data set images and multiply with the scale factor
-    obj_mean, obj_size, b_mean = analyze_images(fpath, path_out, block_size, th_factor)
+    obj_mean, obj_size, b_mean, x_store, y_store = analyze_images(fpath, path_out, block_size, th_factor)
     
     # convert list to numpy array
     obj_mean = np.array(obj_mean)
     obj_size = np.array(obj_size)
-    
+    x_store = np.array(x_store)
+    y_store = np.array(y_store)
     
     img_mean = np.mean(obj_mean)   # mean intensity of all the detected objects (aka image mean)
     size_mean = np.mean(obj_size)  # mean size of all detected objects
@@ -567,6 +587,9 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     b_mean = b_mean.astype('int32')
     img_mean = img_mean.astype('int32') 
     size_mean = size_mean.astype('int32') 
+    x_store = x_store.astype('int32')
+    y_store = y_store.astype('int32')
+    
     
     
     
@@ -599,20 +622,30 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # https://stackoverflow.com/questions/7851077/how-to-return-index-of-a-sorted-list
     sort_index = np.argsort(obj_mean)
     
-    print_log('List'.ljust(26) + ' '.ljust(10) + 'Sorted list'.ljust(26))
-    print_log('__________________________'.ljust(18) + ' '.ljust(10) + '__________________________'.ljust(18))
-    print_log('|  Obj#  |'  '  Mean |'  '  Area |'   + ' '.ljust(10)  + '|  Obj#  |'  '  Mean |'  '  Area |')
-    print_log('|--------|-------|-------|' + ' '.ljust(10) + '|--------|-------|-------|')
+    print_log('List'.ljust(38) + ' '.ljust(10) + 'Sorted list'.ljust(38))
+    print_log('_______________________________________'.ljust(18) + ' '.ljust(10) + '_______________________________________'.ljust(18))
+    print_log('|  Obj#  |'  '  Mean |'  '  Area |'  '    (x,y)   |'  + ' '.ljust(10)  + '|  Obj#  |'  '  Mean |'  '  Area |' '    (x,y)   |')
+    print_log('|--------|-------|-------|------------|' + ' '.ljust(10) + '|--------|-------|-------|------------|')
     # list object and brightness (April 30,2024)
     for m in range(len(obj_mean)):
         n = sort_index[m]
-        print_log('| ' + str(m).rjust(6) + ' |' +  str(obj_mean[m]).rjust(6) + ' |' +  str(obj_size[m]).rjust(6) + ' |'   + ' '.ljust(10) +    '| ' + str(n).rjust(6) + ' |' +  str(obj_mean[n]).rjust(6) + ' |' +  str(obj_size[n]).rjust(6) + ' |')
+        print_log('| ' + str(m).rjust(6) + ' |' +  str(obj_mean[m]).rjust(6) + ' |' +  str(obj_size[m]).rjust(6) + ' |' +  '(' + str(x_store[m]).rjust(4) + ','+  str(y_store[m]).rjust(4) + ')' ' |'  
+                  + ' '.ljust(10) +   
+                  '| ' + str(n).rjust(6) + ' |' +  str(obj_mean[n]).rjust(6) + ' |' +  str(obj_size[n]).rjust(6) + ' |' +  '(' + str(x_store[n]).rjust(4) + ','+  str(y_store[n]).rjust(4) + ')' ' |'  )
     
-    print_log('|--------|-------|-------|' + ' '.ljust(10) + '|--------|-------|-------|')
-    print_log('| ' + ' Avg. '.rjust(6) + ' |' +  str(img_mean).rjust(6) + ' |' +  str(size_mean).rjust(6) + ' |'   + ' '.ljust(10) +    '| ' + ' Avg. '.rjust(6) + ' |' +  str(img_mean).rjust(6) + ' |'+  str(size_mean).rjust(6) + ' |')
-    print_log('|--------|-------|-------|' + ' '.ljust(10) + '|--------|-------|-------|')
-    print_log('| ' + 'Back.'.rjust(6) + ' |' +  str(b_mean).rjust(6) + ' |' + ' |'.rjust(8)  + ' '.ljust(10) +    '| ' + 'Back.'.rjust(6) + ' |' +  str(b_mean).rjust(6) + ' |' + ' |'.rjust(8))
-    print_log('|--------|-------|-------|' + ' '.ljust(10) + '|--------|-------|-------|')
+    print_log('|--------|-------|-------|------------|' + ' '.ljust(10) + '|--------|-------|-------|------------|')
+    
+    print_log('| ' + ' Avg. '.rjust(6) + ' |' +  str(img_mean).rjust(6) + ' |' +  str(size_mean).rjust(6) + ' |'   +  ' '.rjust(11) + ' |'   
+              + ' '.ljust(10) +    
+              '| ' + ' Avg. '.rjust(6) + ' |' +  str(img_mean).rjust(6) + ' |'+  str(size_mean).rjust(6) + ' |'    +  ' '.rjust(11) + ' |'   )
+    
+    print_log('|--------|-------|-------|------------|' + ' '.ljust(10) + '|--------|-------|-------|------------|')
+   
+    print_log('| ' + 'Back.'.rjust(6) + ' |' +  str(b_mean).rjust(6) + ' |' + ' |'.rjust(8)  +  ' '.rjust(11) + ' |'   
+              + ' '.ljust(10) +    
+              '| ' + 'Back.'.rjust(6) + ' |' +  str(b_mean).rjust(6) + ' |' + ' |'.rjust(8) +  ' '.rjust(11) + ' |')
+    
+    print_log('|--------|-------|-------|------------|' + ' '.ljust(10) + '|--------|-------|-------|------------|')
     
     
     # move the log file to the output folder
@@ -621,7 +654,7 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     os.replace('log.txt',path_out +  '/log.txt')
     
     
-    return obj_mean, obj_size,  b_mean
+    return obj_mean, obj_size, b_mean, x_store, y_store
     
 
 

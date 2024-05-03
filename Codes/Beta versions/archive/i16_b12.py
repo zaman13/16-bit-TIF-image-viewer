@@ -54,22 +54,74 @@ import cv2
 
 
 # import custom functions
-from func_fl_single_img_v1 import *
+from func_fl_single_img_v1_1 import *
 import os
 
 
 
 
-def run_analysis():
-    block_size = 81
-    th_factor = 0.1
-    
-    o_mean, o_size, b_mean = single_img_analysis(path2, os.path.dirname(path2), block_size, th_factor)
-    
-    
- 
-    
+   
 
+
+def run_analysis():
+    # block_size = 81
+    # th_factor = 0.1
+    
+    global x_store
+    global y_store
+    global o_mean
+    
+    try:
+        block_size = int(ent_block_size.get())
+    except ValueError:
+        Messagebox.show_error('Failed to run. Block size must be an integer', 'Input error', parent = output_frame)
+        return 0
+    try:
+        th_factor = float(ent_threshold.get())
+    except ValueError:
+        Messagebox.show_error('Failed to run. Threshold must be a number', 'Input error', parent = output_frame)
+        return 0
+    
+     
+    
+    o_mean, o_size, b_mean, x_store, y_store = single_img_analysis(path2, os.path.dirname(path2), block_size, th_factor)
+    show_label()
+    
+def show_label():
+    global ax
+    global x_store
+    global y_store
+    
+    
+    try:  # check if x_store has values (which it will have when run_analysis() function has been run at least once
+        Nobj = len(x_store)  # number of object detected by the analysis program
+    except: # in case of error, exit function using return command
+        print('Can not show labels. Analysis have not been performed or returned errors.')
+        return 0
+    
+    for m in range(Nobj):
+        ax.text(x_store[m], y_store[m], str(m), fontsize = 6, color = 'w')
+    canvas.draw_idle() 
+
+
+def show_mean():
+    global ax
+    global x_store
+    global y_store
+    global o_mean
+    
+    try:  # check if x_store has values (which it will have when run_analysis() function has been run at least once
+        Nobj = len(x_store)  # number of object detected by the analysis program
+    except: # in case of error, exit function using return command
+        print('Can not show mean intensity. Analysis have not been performed or returned errors.')
+        return 0
+    
+    for m in range(Nobj):
+        ax.text(x_store[m], y_store[m], str(o_mean[m]), fontsize = 6, color = 'w')
+    canvas.draw_idle() 
+        
+    
+    
 # Function to update slider labels when sliders are updated
 def scale_update(evnt):
     # Function to update slider labels when sliders are updated
@@ -616,7 +668,7 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.11 \nMarch. 2024', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.12 \nMay. 2024', bootstyle = 'secondary')
 btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
@@ -850,8 +902,8 @@ ctrl_frame.columnconfigure(0, weight = 1)
 ctrl_frame.columnconfigure(1, weight = 1)
 ctrl_frame.columnconfigure(2, weight = 1)
 
-ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24,25,26), weight = 1)
-ctrl_frame.rowconfigure(27, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
+ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24,25,26,27,28,29,30), weight = 1)
+ctrl_frame.rowconfigure(31, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
 
 
 # the count variable makes it easy to reposition widgets in the frame without having to change grid indices of all following entries
@@ -1050,6 +1102,9 @@ canvas.get_tk_widget().grid(row = 2, column = 0, sticky = 'news')
 
 
 
+# =============================================================================
+
+
 # Analysis backend implementation (May 2, 2024)
 # both the UI definition and packinga are done here together. Rather than separating define and pack, it is better
 # to separate the image viewing commands to the analysis commands for debugging purposes. The code can be rearranged later
@@ -1063,14 +1118,44 @@ canvas.get_tk_widget().grid(row = 2, column = 0, sticky = 'news')
 
     # print('test')
     # print(os.path.dirname(path2))
+lbl_header3 =tk.Label(ctrl_frame,text = 'Image 2 Analysis', font = ('bold', 12))
 
-btn_run_analysis = tk.Button(ctrl_frame, text = 'Analyze', bootstyle = im2_style, command = run_analysis)
+lbl_block_size= tk.Label(ctrl_frame,text = 'Block size', bootstyle = 'info')
+ent_block_size = tk.Entry(ctrl_frame, bootstyle = im2_style)
+ent_block_size.insert(0,81) # default value set
+
+
+lbl_threshold= tk.Label(ctrl_frame,text = 'Threshold', bootstyle = 'info')
+ent_threshold = tk.Entry(ctrl_frame, bootstyle = im2_style)
+ent_threshold.insert(0,0.2) # default value set
+
+
+btn_run_analysis = tk.Button(ctrl_frame, text = 'Run Analysis', bootstyle = im2_style, command = run_analysis)
+btn_show_label = tk.Button(ctrl_frame, text = 'Show labels', bootstyle = im2_style, command = show_label)
+btn_show_mean = tk.Button(ctrl_frame, text = 'Show mean', bootstyle = im2_style, command = show_mean)
+
+
 
 count = count + 1
-btn_run_analysis.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
+lbl_header3.grid(row = count, column = 0, columnspan = 2,  stick = 'nw', padx = 10)
+
+
+count = count + 1
+lbl_threshold.grid(row=count, column = 0, sticky = 'nw', padx = 10)
+lbl_block_size.grid(row=count, column = 1, sticky = 'nw', padx = 10)
+
+count = count + 1
+ent_threshold.grid(row=count, column = 0, sticky = 'nw', padx = 10)
+ent_block_size.grid(row=count, column = 1, sticky = 'nw', padx = 10)
+
+
+count = count + 1
+btn_run_analysis.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
+btn_show_label.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
+btn_show_mean.grid(row = count, column = 2, stick = 'nw', padx = 10, pady = 10)
 
 count = count + 1
 
-
+tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'new')
 
 root.mainloop()
