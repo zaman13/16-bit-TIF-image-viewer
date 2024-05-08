@@ -54,11 +54,11 @@ import cv2
 
 
 # import custom functions
-from func_fl_single_img_v1_1 import *
+from func_fl_single_img_v1_2 import *
 import os
 
 
-
+import matplotlib.pyplot as py
 
    
 
@@ -70,7 +70,7 @@ def run_analysis():
     global x_store
     global y_store
     global o_mean
-    
+    global iB_store
     try:
         block_size = int(ent_block_size.get())
     except ValueError:
@@ -84,14 +84,16 @@ def run_analysis():
     
      
     
-    o_mean, o_size, b_mean, x_store, y_store = single_img_analysis(path2, os.path.dirname(path2), block_size, th_factor)
+    o_mean, o_size, b_mean, x_store, y_store, iB_store = single_img_analysis(path2, os.path.dirname(path2), block_size, th_factor)
     show_label()
+    show_box()
+    
     
 def show_label():
     global ax
     global x_store
     global y_store
-    
+    global iB_store
     
     try:  # check if x_store has values (which it will have when run_analysis() function has been run at least once
         Nobj = len(x_store)  # number of object detected by the analysis program
@@ -101,8 +103,28 @@ def show_label():
     
     for m in range(Nobj):
         ax.text(x_store[m], y_store[m], str(m), fontsize = 6, color = 'w')
+    
     canvas.draw_idle() 
 
+
+def show_box():
+    global ax
+   
+    global iB_store
+    
+    try:  # check if iB_store has values (which it will have when run_analysis() function has been run at least once
+        Nobj = len(iB_store)  # number of object detected by the analysis program
+    except: # in case of error, exit function using return command
+        print('Can not show boxes. Analysis have not been performed or returned errors.')
+        return 0
+    
+    for m in range(Nobj):
+        iB = iB_store[m]
+        yt = [iB[0], iB[1], iB[1], iB[0], iB[0]]
+        xt = [iB[2], iB[2], iB[3], iB[3], iB[2]]
+        ax.plot(xt,yt,'r', linewidth = 0.5)    # plot boxes
+        
+    canvas.draw_idle() 
 
 def show_mean():
     global ax
@@ -668,7 +690,7 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.12 \nMay. 2024', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.13 \nMay. 2024', bootstyle = 'secondary')
 btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
@@ -902,8 +924,8 @@ ctrl_frame.columnconfigure(0, weight = 1)
 ctrl_frame.columnconfigure(1, weight = 1)
 ctrl_frame.columnconfigure(2, weight = 1)
 
-ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24,25,26,27,28,29,30), weight = 1)
-ctrl_frame.rowconfigure(31, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
+ctrl_frame.rowconfigure((0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34), weight = 1)
+ctrl_frame.rowconfigure(35, weight = 1000)   # this will stay an empty row. The large height will pack the other rows tight..
 
 
 # the count variable makes it easy to reposition widgets in the frame without having to change grid indices of all following entries
@@ -1130,9 +1152,12 @@ ent_threshold = tk.Entry(ctrl_frame, bootstyle = im2_style)
 ent_threshold.insert(0,0.2) # default value set
 
 
-btn_run_analysis = tk.Button(ctrl_frame, text = 'Run Analysis', bootstyle = im2_style, command = run_analysis)
+btn_run_analysis = tk.Button(ctrl_frame, text = 'Run Analysis', bootstyle = 'danger', command = run_analysis)
 btn_show_label = tk.Button(ctrl_frame, text = 'Show labels', bootstyle = im2_style, command = show_label)
-btn_show_mean = tk.Button(ctrl_frame, text = 'Show mean', bootstyle = im2_style, command = show_mean)
+btn_show_mean = tk.Button(ctrl_frame, text =  'Show mean  ', bootstyle = im2_style, command = show_mean)
+
+btn_show_box = tk.Button(ctrl_frame, text = 'Show box   ', bootstyle = im2_style, command = show_box)
+btn_clear_annotation = tk.Button(ctrl_frame, text = 'Clear Annot.', bootstyle = im2_style, command = draw_figure)
 
 
 
@@ -1150,11 +1175,21 @@ ent_block_size.grid(row=count, column = 1, sticky = 'nw', padx = 10)
 
 
 count = count + 1
-btn_run_analysis.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
-btn_show_label.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
-btn_show_mean.grid(row = count, column = 2, stick = 'nw', padx = 10, pady = 10)
+btn_show_label.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
+btn_run_analysis.grid(row = count, rowspan = 2, column = 1, stick = 'nw', padx = 10, pady = 10, ipady = 20)
+
 
 count = count + 1
+btn_show_mean.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
+
+
+count = count + 1
+btn_show_box.grid(row = count, column = 0, stick = 'nw', padx = 10, pady = 10)
+btn_clear_annotation.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
+
+
+count = count + 1
+
 
 tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'new')
 

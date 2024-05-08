@@ -38,7 +38,10 @@ May 2, 2024
     - Added object size (area) as an output
     - Added object location coordinate (x,y) as an output
     - Print data in a table format with object label, mean intensity, size and coordinate. Also tabulated image mean and background mean.
-    
+
+May 7, 2024
+    - Exported coordinates of bounding box (iB) for annotation in the main program
+    - Note that export of (x,y) coordinates and object size is redundant now as they can be calculated from iB values. However, they are still kept as output for now.
     
 """
 
@@ -326,6 +329,8 @@ def analyze_images(fpath, path_out, block_size, th_factor):
     x_store = []      # store x position of each detected object (from submask)
     y_store = []      # store y position of each detected object (from submask)
     
+    iB_store = []     # store the coordinates of the bounding box
+    
     # note that the x and y poistion is saved from the bounding box coordinate. Hence, there will be an offset from the top left edge of the object. These values
     # should not be taken as the center of each object! They are top left position of the object with some added offset (should be equal to im_box_border variable defined in the
     # bbox1() function)
@@ -469,6 +474,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
         im_tmp = img*im_mask                     # mask the bead and turn everything else to zero
         iB = bbox1(im_tmp)                       # calculate bounding box around the detected bead
         
+        iB_store.append(iB)
         # Plot individual submasked region
         # =============================================================================
         py.figure(37)
@@ -562,7 +568,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
    
     print_log('===================================================================')
     
-    return mean_store, size_store, b_mean, x_store, y_store
+    return mean_store, size_store, b_mean, x_store, y_store, iB_store
 
 
 def single_img_analysis(fpath, path_out, block_size, th_factor):
@@ -570,7 +576,7 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # returns the same thing as analyze_images() function (with some numpy conversion). Mostly, prints results This can perhaps be included in the analyze_images() function itself.
     
     # temp =  np.array(analyze_images(path_full,path_out + '/' + folder[m], block_size, th_factor_set[m]))*scale_factor[m]           # analyze the data set images and multiply with the scale factor
-    obj_mean, obj_size, b_mean, x_store, y_store = analyze_images(fpath, path_out, block_size, th_factor)
+    obj_mean, obj_size, b_mean, x_store, y_store, iB_store = analyze_images(fpath, path_out, block_size, th_factor)
     
     # convert list to numpy array
     obj_mean = np.array(obj_mean)
@@ -654,7 +660,7 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     os.replace('log.txt',path_out +  '/log.txt')
     
     
-    return obj_mean, obj_size, b_mean, x_store, y_store
+    return obj_mean, obj_size, b_mean, x_store, y_store, iB_store
     
 
 
