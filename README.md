@@ -10,7 +10,7 @@
   <img align = "right" src="https://github.com/zaman13/16-bit-TIF-image-viewer/blob/main/Codes/Beta%20versions/ec_logo_90px.png"  width = "240" />
 
 
-A python code to open 16 bit images with sliders to adjust color scale/range, colormap, and transparency. Two images can be opened simulataneously and superimposed on top of each other. Images taken with scientific monochromatic camera with different filters can be combined using this code.   
+A python code to open 16 bit images with sliders to adjust color scale/range, colormap, and transparency. Two images can be opened simulataneously and superimposed on top of each other. Images taken with scientific monochromatic camera with different filters can be combined using this code. The opened image can also be analyzed using a object detection and analysis feature.  
 
 </p>
 
@@ -20,13 +20,17 @@ A python code to open 16 bit images with sliders to adjust color scale/range, co
 ## Library requirements
 - OpenCV
 - Matplotlib
+- NumPy
 - ttkbootstrap (tkinter wrapper)
+  
 
 ## Features
 - Graphical user interface
 - Simultaneous and independent control of two images
 - Multiple colormap options
-- Adjustable transparency 
+- Adjustable transparency
+- Object detection and average brightness calculation for fluorescence analysis
+- 16 bit adaptive thresholding for object detection 
 
 ## Sample output
 <p>
