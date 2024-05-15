@@ -29,8 +29,9 @@ A python code to open 16 bit images with sliders to adjust color scale/range, co
 - Simultaneous and independent control of two images
 - Multiple colormap options
 - Adjustable transparency
+- 16 bit adaptive thresholding for object detection
 - Object detection and average brightness calculation for fluorescence analysis
-- 16 bit adaptive thresholding for object detection 
+- Overlay of analysis data on top of the image
 
 ## Sample output
 <p>
