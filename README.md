@@ -1,9 +1,9 @@
-# Eclipse: 16 bit Image viewer and superimposer
+# Eclypse: 16 bit Image viewer and superimposer
 
 <p float="left">
 <a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/Language-Python-blue" alt="alt text"> </a>
 <a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/blob/main/LICENSE"> <img src="https://img.shields.io/github/license/zaman13/Poisson-solver-2D" alt="alt text"></a>
-<a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/version-0.13-red" alt="alt text"> </a>
+<a href = "https://github.com/zaman13/16-bit-TIF-image-viewer/tree/main/Codes"> <img src="https://img.shields.io/badge/version-0.14-red" alt="alt text"> </a>
 </p>
 
 <p>
