@@ -28,7 +28,20 @@ b08:
     
 b10:
     - Saved zoom state. Now, when a figure is adjusted, it does not go back to the default view anymore.
+    
+b11-14:
+    - Added analysis backend for detecting fluorescent objects in image 2
+    - On screen annotation of mean value and bounding boxes
+    - Added version and date variables
+        
 """
+
+#===================================
+# Version and date text
+#===================================
+vr_txt = 'Version b0.14'
+dt_txt = 'May, 2024'
+#===================================
 
 # import tkinter as tk
 # from tkinter import *
@@ -86,10 +99,13 @@ def run_analysis():
     
     o_mean, o_size, b_mean, x_store, y_store, iB_store = single_img_analysis(path2, os.path.dirname(path2), block_size, th_factor)
     show_label()
-    show_box()
+    # show_box()
+    # show_mean()
     
     
 def show_label():
+    # b0.14 update. This will show all annotation instead of just showing the label from now.
+    
     global ax
     global x_store
     global y_store
@@ -102,7 +118,19 @@ def show_label():
         return 0
     
     for m in range(Nobj):
-        ax.text(x_store[m], y_store[m], str(m), fontsize = 6, color = 'w')
+        iB = iB_store[m]
+        
+        # display label text
+        ax.text(x_store[m], y_store[m], str(m) + ':', fontsize = 6, color = 'w')
+        
+        # display bounding box
+        yt = [iB[0], iB[1], iB[1], iB[0], iB[0]]
+        xt = [iB[2], iB[2], iB[3], iB[3], iB[2]]
+        ax.plot(xt,yt,'r', linewidth = 0.5)    # plot boxes
+        
+        # display mean value
+        ax.text(iB[3], iB[0], str(o_mean[m]), fontsize = 6, color = '#66ff66')
+        ax.text(iB[3], iB[0], str(o_mean[m]), fontsize = 6, color = '#66ff66')
     
     canvas.draw_idle() 
 
@@ -132,6 +160,10 @@ def show_mean():
     global y_store
     global o_mean
     
+    global iB_store
+    
+    
+    
     try:  # check if x_store has values (which it will have when run_analysis() function has been run at least once
         Nobj = len(x_store)  # number of object detected by the analysis program
     except: # in case of error, exit function using return command
@@ -139,7 +171,9 @@ def show_mean():
         return 0
     
     for m in range(Nobj):
-        ax.text(x_store[m], y_store[m], str(o_mean[m]), fontsize = 6, color = 'w')
+        iB = iB_store[m]
+        ax.text(iB[3], iB[0], str(o_mean[m]), fontsize = 6, color = '#66ff66')
+        ax.text(iB[3], iB[0], str(o_mean[m]), fontsize = 6, color = '#66ff66')
     canvas.draw_idle() 
         
     
@@ -598,7 +632,7 @@ def en_dis():
 # Main Program
 # ==========================================================
     
-print('Starting Eclipse, v0.11 (March 2024) \n\n')
+print('Starting Eclipse ' + vr_txt + ', ' + dt_txt + '\n\n')
     
 # =============================================================================
 # Window and frame parameters
@@ -632,8 +666,8 @@ bmn1, bmx1 = 400, 4000
 
 bmn2, bmx2 = bmn1, bmx1
 
-path1 = 's1.tif'
-path2 = 's2.tif'
+path1 = 'Test images/s1.tif'
+path2 = 'Test images/s2.tif'
 
 im1_style = 'info'
 im2_style = 'success'
@@ -690,7 +724,7 @@ bottom_frame.pack(side= 'bottom',anchor = 'e')
 
 img_logoM = tk.PhotoImage(file = 'ec_logo_90px.png')
 lbl_logoM = tk.Label(top_frame,  image = img_logoM)
-lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \nVersion b_0.13 \nMay. 2024', bootstyle = 'secondary')
+lbl_version = tk.Label(top_frame, text = 'Mohammad Asif Zaman \n' + vr_txt + '\n' + dt_txt, bootstyle = 'secondary')
 btn_quit = tk.Button(top_frame, text = 'Quit', bootstyle = 'primary', command = quit_program)
 btn_info = tk.Button(top_frame, text = 'Info', bootstyle = 'dark', command = show_info)
 
@@ -790,11 +824,11 @@ mtr_alp2 = tk.Meter(ctrl_frame,
 lbl_cmp1 = tk.Label(ctrl_frame,text = 'Colormap 1', bootstyle = im1_style)
 spn_cmp1  = tk.Spinbox(ctrl_frame, 
                        bootstyle= im1_style,
-                       values = ['viridis', 'jet', 'Greys', 'cividis', 'Blues', 'Blues_r'], state= 'readonly',
+                       values = ['viridis', 'jet', 'Greys', 'Greys_r', 'cividis', 'Blues', 'Blues_r'], state= 'readonly',
                        wrap = True,
                        command = draw_figure,
                        )
-spn_cmp1.set('Blues')
+spn_cmp1.set('Greys_r')
 
 enable1 = tk.BooleanVar(value = True)
 chk_enable1 = tk.Checkbutton(ctrl_frame, bootstyle = im1_style + '-round-toggle', text = 'Enable', variable = enable1, command = en_dis)
