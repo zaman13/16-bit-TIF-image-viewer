@@ -42,6 +42,10 @@ May 2, 2024
 May 7, 2024
     - Exported coordinates of bounding box (iB) for annotation in the main program
     - Note that export of (x,y) coordinates and object size is redundant now as they can be calculated from iB values. However, they are still kept as output for now.
+
+July 8, 2024
+    - Added data export and histogram image export
+    - Included median and mode in the export data matrix
     
 """
 
@@ -325,6 +329,9 @@ def analyze_images(fpath, path_out, block_size, th_factor):
     # =============================================================================
        
     mean_store = []   # list that will contain mean of each detected object (from submask)
+    median_store = [] # list that will contain median of each detected object (from submask)
+    mode_store = []   # list that will contain mode of each detected object (from submask)
+    
     size_store = []   # list to store the size of each detected object (from submask)
     x_store = []      # store x position of each detected object (from submask)
     y_store = []      # store y position of each detected object (from submask)
@@ -430,11 +437,13 @@ def analyze_images(fpath, path_out, block_size, th_factor):
         
         ind_temp = np.where(im_mask > 0)
         
-        im_mean, im_mediam, im_mode = calc_stats(im_tmp[ind_temp])  # calculate mean, median, and mode of each submask
+        im_mean, im_median, im_mode = calc_stats(im_tmp[ind_temp])  # calculate mean, median, and mode of each submask
         
         # mean_store.append(sum(sum(np.asfarray(im_tmp)))/N_pixel )
-        mean_store.append(im_mean)  # append list to store submask mean
-        size_store.append(N_pixel)  # append list to store submask size
+        mean_store.append(im_mean)      # append list to store submask mean
+        median_store.append(im_median)  # append list to store submask median
+        mode_store.append(im_mode)      # append list to store submask mode
+        size_store.append(N_pixel)      # append list to store submask size
         
         # py.subplot(N_plot_row + 1, 1, 1)
         # py.imshow(img)
@@ -568,7 +577,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
    
     print_log('===================================================================')
     
-    return mean_store, size_store, b_mean, x_store, y_store, iB_store
+    return mean_store, median_store, mode_store, size_store, b_mean, x_store, y_store, iB_store
 
 
 def single_img_analysis(fpath, path_out, block_size, th_factor):
@@ -576,10 +585,12 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # returns the same thing as analyze_images() function (with some numpy conversion). Mostly, prints results This can perhaps be included in the analyze_images() function itself.
     
     # temp =  np.array(analyze_images(path_full,path_out + '/' + folder[m], block_size, th_factor_set[m]))*scale_factor[m]           # analyze the data set images and multiply with the scale factor
-    obj_mean, obj_size, b_mean, x_store, y_store, iB_store = analyze_images(fpath, path_out, block_size, th_factor)
+    obj_mean, obj_median, obj_mode, obj_size, b_mean, x_store, y_store, iB_store = analyze_images(fpath, path_out, block_size, th_factor)
     
     # convert list to numpy array
     obj_mean = np.array(obj_mean)
+    obj_median = np.array(obj_median)
+    obj_mode = np.array(obj_mode)
     obj_size = np.array(obj_size)
     x_store = np.array(x_store)
     y_store = np.array(y_store)
@@ -589,6 +600,8 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
    
     # convert the numbers (list of numbers) to integers 
     obj_mean = obj_mean.astype('int32') 
+    obj_median = obj_median.astype('int32') 
+    obj_mode = obj_mode.astype('int32') 
     obj_size = obj_size.astype('int32')
     b_mean = b_mean.astype('int32')
     img_mean = img_mean.astype('int32') 
@@ -602,6 +615,7 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     print_log('Finsihed analysis. Back to main \n\n')
    
     
+   
     
     # convert to pandas dataframe and plot a table-figure
     # x = np.linspace(0,len(obj_mean)-1, len(obj_mean))
@@ -659,6 +673,38 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # Pth('log.txt').rename(path_out +  '/log.txt')
     os.replace('log.txt',path_out +  '/log.txt')
     
+    
+    # Modifications: July 8,, 2024
+    # Expor settings
+    pp = 'out_'
+    p = path_out + '/' + pp 
+    
+    
+    b_mean_array = np.ones(np.size(obj_mean))*b_mean  # create an array of repeated background mean value (for exporting)
+    
+    header_str = ['Mean', 'Median', 'Mode', 'Size', 'x', 'y', 'Background', 'Contrast (mean)']  # pandas header/column names
+    Mdata_out = np.transpose([obj_mean, obj_median, obj_mode.squeeze(), obj_size, x_store, y_store, b_mean_array, obj_mean - b_mean_array])  # numpy output data matrix
+      
+    data_frame_out = pd.DataFrame(data = Mdata_out, columns = header_str)  # convert numpy matrix to pandas dataframe
+    
+    # np.savetxt(p + 'data.csv', Mdata_out, delimiter=",")   # save numpy output matrix
+    data_frame_out.to_csv(p + 'data.csv', index=True)        # save pandas output data frame
+    
+    
+    # plot histograme
+    py.figure()
+    try:
+        py.hist(obj_mean, edgecolor = 'black', linewidth = 1.2)
+        py.xlabel('Fluorescence (arb. units)')
+        py.ylabel('Count')
+        py.savefig(p+ 'hist.png', dpi = 300)   # save image
+    except:
+        print_log('Erryr in plotting histogram.\n')
+    
+    
+    
+    
+    print_log('\nFinished running.\n')
     
     return obj_mean, obj_size, b_mean, x_store, y_store, iB_store
     
