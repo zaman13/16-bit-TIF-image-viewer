@@ -46,6 +46,13 @@ May 7, 2024
 July 8, 2024
     - Added data export and histogram image export
     - Included median and mode in the export data matrix
+
+
+July 20, 2024
+    - Auto invert of adaptive threshold for analyzing bright field images. This is based upon the th_factor parameter.
+      th_factor > 0 for fluorescence images, and th_factor < 0 for bright field images.
+    - Now using sparse matrix to represent the sub-masks. This should save a lot of memory
+    
     
 """
 
@@ -60,6 +67,7 @@ from PIL import Image as PIL_Image
 
 from skimage import measure
 from scipy.stats import kurtosis, skew
+from scipy.sparse import csr_matrix
 
 import glob
 
@@ -67,6 +75,9 @@ import random
 
 
 import os
+
+
+
 
 
 # =============================================================================
@@ -114,6 +125,18 @@ def adaptive_threshold_16bit(img, blur_order, block_size, mean_th_fct):
     # mask = imgM > (blur_avg - const_C)
     
     mask = imgM > ((1+mean_th_fct)*blur_avg) 
+    
+    # July 20, 2024: Smart masking.Invert mask automatically depending on whether most of the region of the mask is bright or dark.
+    # In this way, the algorithm can automatically detect between brightfield or fluorescence image and adjust the mask accordingly.
+    # This "smart" method will probably cause issues. Much better to use a dumber approach.
+    
+    # if sum(sum(mask)) > np.size(mask)/2: # if there are more ones than zeros
+        # mask = np.invert(mask)
+    
+    # July 20, 2024: More simple version
+    if mean_th_fct < 0:
+        mask = np.invert(mask)
+        
     return mask
 # =============================================================================
 
@@ -148,14 +171,17 @@ def mask_fragment(img,obj_size_th_factor ):
     
     
     
-    sub_masks = np.zeros([np.shape(img)[0],np.shape(img)[1],N_obj])  # array of image arrays. A mask for each detected object.
+    # sub_masks = np.zeros([np.shape(img)[0],np.shape(img)[1],N_obj])  # array of image arrays. A mask for each detected object.
+    sub_masks = []
     obj_size_sum = np.zeros(N_obj)     # initialization. The array will store size of each submask.
     
     for m in range(N_obj):             # loop through each object
         uu = uu*0                      # reset uu array for reuse
         uu[idx[m]] = 1                 # populate uu   
         obj_size_sum[m] = np.sum(uu)   # size of the object. Defined by the number of ones.
-        sub_masks[:,:,m] = uu          # store the submask
+        # sub_masks[:,:,m] = uu          # store the submask
+        
+        sub_masks.append(csr_matrix(uu))
         
         # py.subplot(3,int(np.ceil(N_obj/3)),m+1)
         # py.imshow(sub_masks[:,:,m])
@@ -183,7 +209,8 @@ def mask_fragment(img,obj_size_th_factor ):
     
   
     
-    sub_masks_refined = np.zeros([np.shape(img)[0],np.shape(img)[1],N_obj_refined])  # initialize array of image arrays where submasks will be stored
+    # sub_masks_refined = np.zeros([np.shape(img)[0],np.shape(img)[1],N_obj_refined])  # initialize array of image arrays where submasks will be stored
+    sub_masks_refined = []
     mask_refined = np.zeros(np.shape(img))   # initialize composite mask from refined sub-masks 
     # py.figure()
     
@@ -191,8 +218,10 @@ def mask_fragment(img,obj_size_th_factor ):
     for m in range(N_obj):   # loop over all objects
         
         if obj_size_sum[m] > obj_size_sum_th:   # for objects that meet threshold size
-            sub_masks_refined[:,:,counter] = sub_masks[:,:,m]             # store refined sub-mask
-            mask_refined = mask_refined + sub_masks_refined[:,:,counter]  # superimpose on the refined mask
+            # sub_masks_refined[:,:,counter] = sub_masks[:,:,m]             # store refined sub-mask
+            sub_masks_refined.append(sub_masks[m])
+            
+            mask_refined = mask_refined + sub_masks_refined[counter]  # superimpose on the refined mask
              
             # note that mask refined is still a binary matrix as the sub_masks do not overlap (no element will be larger than one)
         
@@ -395,7 +424,8 @@ def analyze_images(fpath, path_out, block_size, th_factor):
         print_log('\n================File Error=============\n')
         print_log(fpath)
         print_log('Skipping file and moving to next file \n\n')
-        return 0
+        # mean_store, median_store, mode_store, size_store, b_mean, x_store, y_store, iB_store
+        return 0, 0, 0, 0, 0, 0, 0, 0
     
     smasks, smasks_f, mask_r = mask_fragment(im_mask,obj_size_th_factor )    # mask fragment and composite reforming
     
@@ -403,7 +433,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
                  
     # print_log(np.shape(smasks_f[:,:,0]))
     print_log('Submasking done')
-    Nsub_masks = np.shape(smasks_f)[2]
+    Nsub_masks = len(smasks_f)
     
     N_plot_col = int(np.ceil(np.sqrt(Nsub_masks))) 
     N_plot_row = int(np.ceil(Nsub_masks/N_plot_col))
@@ -430,8 +460,9 @@ def analyze_images(fpath, path_out, block_size, th_factor):
     # loop over each submask, each submask represents one detected object
     for m in range(Nsub_masks):
         
-        im_mask = smasks_f[:,:,m]                # select a submask
+        im_mask = np.array(smasks_f[m].todense())                    # select a submask
         N_pixel = sum(sum(im_mask))              # number of pixels in the mask
+        
         im_tmp = img*im_mask                     # mask the bead and turn everything else to zero
         iB = bbox1(im_tmp)                       # calculate bounding box around the detected bead
         
@@ -479,7 +510,7 @@ def analyze_images(fpath, path_out, block_size, th_factor):
         # print('N_plot_col = %i, N_plot_row = %i, m = %i' %(N_plot_col, N_plot_row, m))
         
         
-        im_mask = smasks_f[:,:,m]                # select a submask
+        im_mask = np.array(smasks_f[m].todense())                # select a submask
         im_tmp = img*im_mask                     # mask the bead and turn everything else to zero
         iB = bbox1(im_tmp)                       # calculate bounding box around the detected bead
         
@@ -683,13 +714,14 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     b_mean_array = np.ones(np.size(obj_mean))*b_mean  # create an array of repeated background mean value (for exporting)
     
     header_str = ['Mean', 'Median', 'Mode', 'Size', 'x', 'y', 'Background', 'Contrast (mean)']  # pandas header/column names
-    Mdata_out = np.transpose([obj_mean, obj_median, obj_mode.squeeze(), obj_size, x_store, y_store, b_mean_array, obj_mean - b_mean_array])  # numpy output data matrix
-      
-    data_frame_out = pd.DataFrame(data = Mdata_out, columns = header_str)  # convert numpy matrix to pandas dataframe
     
-    # np.savetxt(p + 'data.csv', Mdata_out, delimiter=",")   # save numpy output matrix
-    data_frame_out.to_csv(p + 'data.csv', index=True)        # save pandas output data frame
-    
+    try:
+        Mdata_out = np.transpose([obj_mean, obj_median, obj_mode.squeeze(), obj_size, x_store, y_store, b_mean_array, obj_mean - b_mean_array])  # numpy output data matrix
+        data_frame_out = pd.DataFrame(data = Mdata_out, columns = header_str)  # convert numpy matrix to pandas dataframe
+        # np.savetxt(p + 'data.csv', Mdata_out, delimiter=",")   # save numpy output matrix
+        data_frame_out.to_csv(p + 'data.csv', index=True)        # save pandas output data frame
+    except:
+        print_log('Could not create/save data frame')
     
     # plot histograme
     py.figure()
