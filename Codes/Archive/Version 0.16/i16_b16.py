@@ -39,7 +39,7 @@ b11-14:
 #===================================
 # Version and date text
 #===================================
-vr_txt = 'Version b0.15'
+vr_txt = 'Version b0.16'
 dt_txt = 'July, 2024'
 #===================================
 
@@ -67,14 +67,53 @@ import cv2
 
 
 # import custom functions
-# from func_fl_single_img_v1_3 import *
-from func_fl_single_img import *
+from func_fl_single_img_v1_5 import *
 import os
 
 
 import matplotlib.pyplot as py
 
    
+def runB_analysis():
+    global Bx_store
+    global By_store
+    global Bo_mean
+    global BiB_store
+    
+    Bo_mean, Bo_size, Bb_mean, Bx_store, By_store, BiB_store = single_img_analysis(path1, os.path.dirname(path1), 41, -0.1)
+    showB_label()
+    
+
+def showB_label():
+    # b0.14 update. This will show all annotation instead of just showing the label from now.
+    
+    global ax
+    global Bx_store
+    global By_store
+    global BiB_store
+    
+    try:  # check if x_store has values (which it will have when run_analysis() function has been run at least once
+        Nobj = len(Bx_store)  # number of object detected by the analysis program
+    except: # in case of error, exit function using return command
+        print('Can not show labels. Analysis have not been performed or returned errors.')
+        return 0
+    
+    for m in range(Nobj):
+        BiB = BiB_store[m]
+        
+        # display label text
+        ax.text(Bx_store[m], By_store[m], str(m) + ':', fontsize = 6, color = '#ff55ff')
+        
+        # display bounding box
+        yt = [BiB[0], BiB[1], BiB[1], BiB[0], BiB[0]]
+        xt = [BiB[2], BiB[2], BiB[3], BiB[3], BiB[2]]
+        ax.plot(xt,yt,'#00aaaa', linewidth = 0.5)    # plot boxes
+        
+        # display mean value
+        # ax.text(BiB[3], BiB[0], str(Bo_mean[m]), fontsize = 6, color = '#66ff66')
+        # ax.text(BiB[3], BiB[0], str(Bo_mean[m]), fontsize = 6, color = '#66ff66')
+    
+    canvas.draw_idle() 
 
 
 def run_analysis():
@@ -127,7 +166,7 @@ def show_label():
         # display bounding box
         yt = [iB[0], iB[1], iB[1], iB[0], iB[0]]
         xt = [iB[2], iB[2], iB[3], iB[3], iB[2]]
-        ax.plot(xt,yt,'r', linewidth = 0.5)    # plot boxes
+        ax.plot(xt,yt,'#ff5555', linewidth = 0.5)    # plot boxes
         
         # display mean value
         ax.text(iB[3], iB[0], str(o_mean[m]), fontsize = 6, color = '#66ff66')
@@ -151,7 +190,7 @@ def show_box():
         iB = iB_store[m]
         yt = [iB[0], iB[1], iB[1], iB[0], iB[0]]
         xt = [iB[2], iB[2], iB[3], iB[3], iB[2]]
-        ax.plot(xt,yt,'r', linewidth = 0.5)    # plot boxes
+        ax.plot(xt,yt,'#ff5555', linewidth = 0.5)    # plot boxes
         
     canvas.draw_idle() 
 
@@ -1023,7 +1062,22 @@ btn_auto_set1.grid(row = count, column = 1, stick = 'nw', padx = 10, pady = 10)
 count = count + 1
 
 
+# July 20, 2024: Brightfield running command
+# Additional button to analyze the bright-field image (image 1)
 
+btn_runB_analysis = tk.Button(ctrl_frame, text = 'Run Analysis', bootstyle = 'danger', command = runB_analysis)
+btn_runB_analysis.grid(row = count, rowspan = 1, column = 1, stick = 'nw', padx = 10, pady = 5, ipady = 2)
+
+btn_showB_label = tk.Button(ctrl_frame, text = 'Show labels', bootstyle = im1_style, command = showB_label)
+btn_showB_label.grid(row = count, rowspan = 1, column = 0, stick = 'nw', padx = 10, pady = 5, ipady = 2)
+
+
+count = count + 1
+
+btn_clearB_annotation = tk.Button(ctrl_frame, text = 'Clear Annot.', bootstyle = im1_style, command = draw_figure)
+btn_clearB_annotation.grid(row = count, rowspan = 1, column = 1, stick = 'nw', padx = 10, pady = 5, ipady = 2)
+
+count = count + 1
 
 tk.Separator(ctrl_frame, bootstyle='secondary').grid(row=count, column = 0, columnspan=3, pady = 10, sticky = 'nsew')
 count = count + 1
