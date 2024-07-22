@@ -67,7 +67,6 @@ import cv2
 
 
 # import custom functions
-# from func_fl_single_img_v1_5 import *
 from func_fl_single_img import *
 import os
 

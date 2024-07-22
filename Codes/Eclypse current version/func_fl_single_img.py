@@ -726,12 +726,13 @@ def single_img_analysis(fpath, path_out, block_size, th_factor):
     # plot histograme
     py.figure()
     try:
-        py.hist(obj_mean, edgecolor = 'black', linewidth = 1.2)
+        Avg_N_element_per_bin = 9
+        py.hist(obj_mean, edgecolor = 'black', linewidth = 1.2, bins = int(len(obj_mean)/Avg_N_element_per_bin))
         py.xlabel('Fluorescence (arb. units)')
         py.ylabel('Count')
         py.savefig(p+ 'hist.png', dpi = 300)   # save image
     except:
-        print_log('Erryr in plotting histogram.\n')
+        print_log('Error in plotting histogram.\n')
     
     
     
